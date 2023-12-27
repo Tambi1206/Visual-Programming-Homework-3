@@ -1,0 +1,92 @@
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace GuessTheNumberGame
+{
+    public partial class MainForm : Form
+    {
+        private int targetNumber;
+        private const int MinNumber = 1;
+        private const int MaxNumber = 1000;
+        private bool gameWon;
+
+        public MainForm()
+        {
+            InitializeComponent();
+            InitializeGame();
+        }
+
+        private void InitializeGame()
+        {
+            Random random = new Random();
+            targetNumber = random.Next(MinNumber, MaxNumber + 1);
+            gameWon = false;
+
+            // Initial UI setup
+            labelStatus.Text = "I have a number between 1 and 1000. Can you guess my number?";
+            labelHint.Text = "Please enter your first guess.";
+            textBoxGuess.Enabled = true;
+            textBoxGuess.Text = "";
+            buttonSubmit.Enabled = true;
+            BackColor = DefaultBackColor;
+        }
+
+        private void buttonSubmit_Click(object sender, EventArgs e)
+        {
+            if (!gameWon)
+            {
+                // Get the user's guess
+                if (int.TryParse(textBoxGuess.Text, out int userGuess))
+                {
+                    // Provide feedback on the guess
+                    EvaluateGuess(userGuess);
+
+                    // Check if the user guessed correctly
+                    if (userGuess == targetNumber)
+                    {
+                        gameWon = true;
+                        MessageBox.Show("Correct! You guessed the number.", "Congratulations");
+                        BackColor = Color.Green;
+                        textBoxGuess.Enabled = false;
+                        buttonSubmit.Enabled = false;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Please enter a valid number.", "Invalid Input");
+                }
+            }
+        }
+
+        private void EvaluateGuess(int userGuess)
+        {
+            int difference = Math.Abs(targetNumber - userGuess);
+
+            // Change background color based on proximity to the target number
+            if (difference <= 10)
+            {
+                BackColor = Color.Red; // Warmer
+            }
+            else
+            {
+                BackColor = Color.Blue; // Colder
+            }
+
+            // Provide hints
+            if (userGuess < targetNumber)
+            {
+                labelHint.Text = "Too Low";
+            }
+            else
+            {
+                labelHint.Text = "Too High";
+            }
+        }
+
+        private void buttonPlayAgain_Click(object sender, EventArgs e)
+        {
+            InitializeGame();
+        }
+    }
+}
